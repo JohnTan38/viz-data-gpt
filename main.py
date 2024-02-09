@@ -32,8 +32,8 @@ footer_html = """
             text-decoration: underline;
         }
     </style>
-        Connect with me on <a href="https://twitter.com/alexarsentiev" target="_blank">Twitter</a>. 
-        If you like this app, consider <a href="https://www.buymeacoffee.com/arsentiev" target="_blank">buying me a coffee</a> ☕
+        Connect with me <a href="mailto:vieming@hotmail.com" target="_blank">vieming@hotmail.com</a>. 
+        If you like this app, consider <a href="https://www.buymeacoffee.com/vieming8" target="_blank">buying me a coffee</a> ☕
     </div>
 """
 
@@ -68,7 +68,8 @@ def create_table(conn: Connection, df: pd.DataFrame, table_name: str):
 def generate_gpt_reponse(gpt_input, max_tokens):
 
     # load api key from secrets
-    openai.api_key = st.secrets["openai_api_key"]
+    #openai.api_key = st.secrets["openai_api_key"]
+    openai.api_key = openai_api_key
 
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -106,6 +107,11 @@ st.markdown(page_bg_img, unsafe_allow_html=True)
 
 st.title("ASK CSV 🤖 (GPT-powered)")
 st.header('Use Natural Language to Query Your Data')
+
+with st.sidebar:
+    openai_api_key = st.text_input("YOUR_OPENAI_API_KEY", type="password")
+openai.api_key = openai_api_key
+
 
 uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
 
