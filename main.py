@@ -10,6 +10,8 @@ import re
 from dateutil.parser import parse
 import traceback
 
+from pandasai import SmartDataframe
+from pandasai.llm import OpenAI
 
 footer_html = """
     <div class="footer">
@@ -59,6 +61,7 @@ def create_connection(db_name: str) -> Connection:
 
 def run_query(conn: Connection, query: str) -> pd.DataFrame:
     df = pd.read_sql_query(query, conn)
+    print(df)
     return df
 
 def create_table(conn: Connection, df: pd.DataFrame, table_name: str):
@@ -67,7 +70,7 @@ def create_table(conn: Connection, df: pd.DataFrame, table_name: str):
 
 def generate_gpt_reponse(gpt_input, max_tokens):
 
-    # load api key from secrets
+    # load api key from secrets / get api key from input
     #openai.api_key = st.secrets["openai_api_key"]
     openai.api_key = openai_api_key
 
@@ -81,6 +84,7 @@ def generate_gpt_reponse(gpt_input, max_tokens):
     )
 
     gpt_response = completion.choices[0].message['content'].strip()
+    print(gpt_response)
     return gpt_response
 
 
@@ -95,17 +99,29 @@ def extract_code(gpt_response):
 
         # remove python from the code (weird bug)
         extracted_code = extracted_code.replace('python', '')
+        print(extracted_code)
 
         return extracted_code
     else:
         return gpt_response
 
 
+def pandasAI(openai_api_key):
+    llm = OpenAI(api_token=openai_api_key)
+    sdf = SmartDataframe(df, config={"llm":llm})
+    sdf.chat(user_input_pandasAI)
+    result = sdf.chat(user_input_pandasAI)
+    if result != None:
+        val = result
+    with st.expander('Code generated'):
+            st.code(sdf.last_code_generated)
+            st.subheader('Your response: {}'.format(val))
+
 # wide layout
-st.set_page_config(page_icon="🤖", page_title="Ask CSV")
+st.set_page_config(page_icon="🤖", page_title="Chat CSV")
 st.markdown(page_bg_img, unsafe_allow_html=True)
 
-st.title("ASK CSV 🤖 (GPT-powered)")
+st.title("CHAT CSV 🤖 (GPT4)")
 st.header('Use Natural Language to Query Your Data')
 
 with st.sidebar:
@@ -148,9 +164,9 @@ elif uploaded_file:
     create_table(conn, df, table_name)
 
 
-    selected_mode = st.selectbox("What do you want to do?", ["Ask your data", "Create a chart [beta]"])
+    selected_mode = st.selectbox("What do you want to do?", ["Chat with data", "Ask PandasAI", "Create a chart [beta]"])
 
-    if selected_mode == 'Ask your data':
+    if selected_mode == 'Chat with data':
 
         user_input = st.text_area("Write a concise and clear question about your data. For example: What is the total sales in the USA in 2022?", value='What is the total sales in the USA in 2022?')
 
@@ -182,8 +198,17 @@ elif uploaded_file:
                     st.table(result)
 
             except Exception as e:
-                #st.error(f"An error occurred: {e}")
-                st.error('Oops, there was an error :( Please try again with a different question.')
+                st.error(f"An error occurred: {e}")
+                #st.error('Oops, there was an error :( Please try again with a different question.')
+    
+    if selected_mode == 'Ask PandasAI':
+
+        user_input_pandasAI = st.text_area("Write a concise and clear question about your data. For example: What is the total sales in the USA in 2022?", value='What is the total sales in the USA in 2022?')
+        if st.button("Get Response"):
+            try:
+                pandasAI(openai_api_key)
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
 
     elif selected_mode == 'Create a chart [beta]':
 
@@ -212,9 +237,5 @@ elif uploaded_file:
                 st.error(f"An error occurred: {e}")
                 #st.write(traceback.print_exc())
                 #st.error('Oops, there was an error :( Please try again with a different question.')
-
 # footer
 st.markdown(footer_html, unsafe_allow_html=True)
-
-
-
