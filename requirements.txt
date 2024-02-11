@@ -4,4 +4,4 @@ openai==0.28
 plotly
 numpy
 pandasai
-duckdb --upgrade --pre
+duckdb 
