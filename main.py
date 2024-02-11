@@ -10,8 +10,8 @@ import re
 from dateutil.parser import parse
 import traceback
 
-from pandasai import SmartDataframe
-from pandasai.llm import OpenAI
+#from pandasai import SmartDataframe
+#from pandasai.llm import OpenAI
 
 footer_html = """
     <div class="footer">
@@ -106,16 +106,16 @@ def extract_code(gpt_response):
         return gpt_response
 
 
-def pandasAI(openai_api_key):
-    llm = OpenAI(api_token=openai_api_key)
-    sdf = SmartDataframe(df, config={"llm":llm})
-    sdf.chat(user_input_pandasAI)
-    result = sdf.chat(user_input_pandasAI)
-    if result != None:
-        val = result
-    with st.expander('Code generated'):
-            st.code(sdf.last_code_generated)
-            st.subheader('Your response: {}'.format(val))
+#def pandasAI(openai_api_key):
+    #llm = OpenAI(api_token=openai_api_key)
+    #sdf = SmartDataframe(df, config={"llm":llm})
+    #sdf.chat(user_input_pandasAI)
+    #result = sdf.chat(user_input_pandasAI)
+    #if result != None:
+        #val = result
+    #with st.expander('Code generated'):
+            #st.code(sdf.last_code_generated)
+            #st.subheader('Your response: {}'.format(val))
 
 # wide layout
 st.set_page_config(page_icon="🤖", page_title="Chat CSV")
@@ -164,7 +164,7 @@ elif uploaded_file:
     create_table(conn, df, table_name)
 
 
-    selected_mode = st.selectbox("What do you want to do?", ["Chat with data", "Ask PandasAI", "Create a chart [beta]"])
+    selected_mode = st.selectbox("What do you want to do?", ["Chat with data", "Create a chart"])
 
     if selected_mode == 'Chat with data':
 
@@ -201,21 +201,21 @@ elif uploaded_file:
                 st.error(f"An error occurred: {e}")
                 #st.error('Oops, there was an error :( Please try again with a different question.')
     
-    if selected_mode == 'Ask PandasAI':
+    #if selected_mode == 'Ask PandasAI':
 
-        user_input_pandasAI = st.text_area("Write a concise and clear question about your data. For example: What is the total sales in the USA in 2022?", value='What is the total sales in the USA in 2022?')
-        if st.button("Get Response"):
-            try:
-                pandasAI(openai_api_key)
-            except Exception as e:
-                st.error(f"An error occurred: {e}")
+        #user_input_pandasAI = st.text_area("Write a concise and clear question about your data. For example: What is the total sales in the USA in 2022?", value='What is the total sales in the USA in 2022?')
+        #if st.button("Get Response"):
+            #try:
+                #pandasAI(openai_api_key)
+            #except Exception as e:
+                #st.error(f"An error occurred: {e}")
 
     elif selected_mode == 'Create a chart [beta]':
 
         user_input = st.text_area(
             "Briefly explain what you want to plot from your data. For example: Plot total sales by country and product category", value='Plot total sales by country and product category')
 
-        if st.button("Create a visualization [beta]"):
+        if st.button("Create a visualization"):
             try:
                 # create gpt prompt
                 gpt_input = 'Write code in Python using Plotly to address the following request: {} ' \
