@@ -210,7 +210,7 @@ elif uploaded_file:
             except Exception as e:
                 st.error(f"An error occurred: {e}")
 
-    elif selected_mode == 'Create a chart [beta]':
+    elif selected_mode == 'Create a chart':
 
         user_input = st.text_area(
             "Briefly explain what you want to plot from your data. For example: Plot total sales by country and product category", value='Plot total sales by country and product category')
