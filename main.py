@@ -75,7 +75,7 @@ def generate_gpt_reponse(gpt_input, max_tokens):
     openai.api_key = openai_api_key
 
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-3.5-turbo-0125",
         max_tokens=max_tokens,
         temperature=0,
         messages=[
